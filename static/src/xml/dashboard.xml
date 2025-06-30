@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="sales_dashboard.DashboardTemplate">
+        <div class="o_content o_sales_dashboard">
+            <!-- Date Range Selector -->
+            <!--            <section class="o_control_panel o_date_filter">-->
+
+            <!--            </section>-->
+            <!-- Dashboard Cards Container -->
+            <section class="o_view_controller o_dashboard_cards pt-5">
+                <div class=" o_cards_container "
+                     style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+                    <form class="o_date_form" onsubmit="return false;">
+                        <label for="startDate" class="o_date_label">From:</label>
+                        <input id="startDate" type="date" t-model="state.startDate" class="o_date_input"/>
+                        <span class="o_date_separator">–</span>
+                        <label for="endDate" class="o_date_label">To:</label>
+                        <input id="endDate" type="date" t-model="state.endDate" class="o_date_input"/>
+                        <button type="button" class="btn btn-primary o_apply_btn" t-on-click="loadData">Apply</button>
+                    </form>
+                </div>
+                <div class="o_cards_container">
+
+                    <!-- Best Selling Products -->
+                    <article class="o_dashboard_card o_best_products">
+                        <header class="o_dashboard_card_header">
+                            <h5>Best Selling Products (Top Five)</h5>
+                        </header>
+                        <div class="o_dashboard_card_body">
+                            <ul class="o_dashboard_list">
+                                <t t-foreach="state.data.best_selling_products" t-as="product"
+                                   t-key="product.product_id[0]">
+                                    <li class="o_dashboard_item">
+                                        <span class="o_dashboard_item_name" t-esc="product.product_id[1]"/>
+                                        <span class="o_dashboard_value" t-esc="product.qty_delivered"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <!-- Best Salespersons -->
+                    <article class="o_dashboard_card o_best_salespersons">
+                        <header class="o_dashboard_card_header">
+                            <h5>Best Salespersons</h5>
+                        </header>
+                        <div class="o_dashboard_card_body">
+                            <ul class="o_dashboard_list">
+                                <t t-foreach="state.data.best_salespersons" t-as="salesperson"
+                                   t-key="salesperson.user_id[0]">
+                                    <li class="o_dashboard_item">
+                                        <span class="o_dashboard_item_name" t-esc="salesperson.user_id[1]"/>
+                                        <!-- Use 'this.formatCurrency' inside OWL templates -->
+                                        <span class="o_dashboard_value"
+                                              t-esc="this.formatCurrency(salesperson.amount_total)"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="o_cards_container">
+                    <!-- Top Salespersons (By Confirm Orders)-->
+                    <article class="o_dashboard_card o_top_salespersons">
+                        <header class="o_dashboard_card_header">
+                            <h5>Top Salespersons (By Orders)</h5>
+                        </header>
+                        <div class="o_dashboard_card_body">
+                            <t t-foreach="state.data.best_salespersons_by_confirm_order" t-as="salesperson"
+                               t-key="salesperson.user_id[0]">
+                                <div class="o_dashboard_status_item">
+                                    <span t-esc="salesperson.user_id[1]"/>
+                                    <span class="o_dashboard_value" t-esc="salesperson.user_id_count"/>
+                                    <!--                                    Orders-->
+                                </div>
+                            </t>
+                        </div>
+                    </article>
+
+
+                    <!-- Payment Summary -->
+                    <article class="o_dashboard_card o_payment_summary">
+                        <header class="o_dashboard_card_header">
+                            <h5>Payment Status</h5>
+                        </header>
+                        <div class="o_dashboard_card_body">
+                            <t t-foreach="state.data.payment_summary" t-as="payment" t-key="payment.payment_state">
+                                <div class="o_dashboard_status_item">
+                                    <t t-if="payment.payment_state == 'not_paid'">
+                                        Not Paid
+                                    </t>
+                                    <t t-elif="payment.payment_state == 'paid'">
+                                        Paid
+                                    </t>
+                                    <t t-elif="payment.payment_state == 'in_payment'">
+                                        In Payment
+                                    </t>
+                                    <t t-else="">
+                                        Unknown
+                                    </t>
+
+                                    <span class="o_dashboard_value" t-esc="payment.payment_state_count"/>
+                                </div>
+                            </t>
+                        </div>
+                    </article>
+                </div>
+                <div class="o_cards_container">
+                    <!-- Status Overview -->
+                    <article class="o_dashboard_card o_status_overview">
+                        <header class="o_dashboard_card_header">
+                            <h5>Status Overview</h5>
+                        </header>
+                        <div class="o_dashboard_card_body">
+                            <t t-foreach="state.data.status_overview" t-as="status" t-key="status.state">
+                                <div class="o_dashboard_status_item">
+                                    <t t-if="status.state == 'draft'">
+                                        Draft
+                                    </t>
+                                    <t t-elif="status.state == 'sent'">
+                                        RFQ Sent
+                                    </t>
+                                    <t t-else="">
+                                        Sale
+                                    </t>
+                                    <span class="o_dashboard_value" t-esc="status.state_count"/>
+                                </div>
+                            </t>
+                        </div>
+                    </article>
+<!--                    <article class="o_dashboard_card o_top_salespersons">-->
+<!--                    </article>-->
+
+
+                    <!-- Payment Summary -->
+                                        <article class="o_dashboard_card o_payment_order_summary">
+                                            <header class="o_dashboard_card_header">
+                                                <h5>Payment Order Summary</h5>
+                                            </header>
+                                            <div class="o_dashboard_card_body">
+                                                <t t-foreach="state.data.payment_order_summary" t-as="payment"
+                                                   t-key="payment.journal_id[0]">
+                                                    <div class="o_dashboard_status_item">
+                                                        <span t-esc="payment.journal_id[1]"/>:
+                                                        <span class="o_dashboard_value" t-esc="this.formatCurrency(payment.amount)"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </article>
+
+                </div>
+            </section>
+        </div>
+    </t>
+</templates>
