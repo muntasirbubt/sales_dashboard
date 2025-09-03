@@ -12,8 +12,27 @@ class SalesDashboard(models.TransientModel):
             'status_overview': self._get_status_overview(start_date, end_date),
             'payment_order_summary': self._get_payment_order_summary(start_date, end_date),
             'payment_summary': self._get_payment_summary(start_date, end_date),
-        }
+            'day_wise_sales': self._get_day_wise_sales_amount(start_date, end_date),        }
 
+    def _get_day_wise_sales_amount(self, start_date, end_date):
+        """
+        Get day-wise sales amount for the given date range
+        Returns: List of dictionaries with date and total sales amount
+        """
+        query = """
+            SELECT 
+                DATE(so.date_order) as sale_date,
+                SUM(so.amount_total) as total_amount
+            FROM sale_order so
+            WHERE so.date_order BETWEEN %s AND %s
+                AND so.state IN ('sale', 'done')
+            GROUP BY DATE(so.date_order)
+            ORDER BY sale_date
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+        return results
     def _get_best_selling_products(self, start_date, end_date):
         record =  self.env['sale.order.line'].read_group(
             [('order_id.date_order', '>=', start_date),
@@ -51,12 +70,13 @@ class SalesDashboard(models.TransientModel):
         return record
 
     def _get_status_overview(self, start_date, end_date):
-        return self.env['sale.order'].read_group(
+        status_record =  self.env['sale.order'].read_group(
             [('date_order', '>=', start_date),
              ('date_order', '<=', end_date)],
             ['state'],
             ['state']
         )
+        return status_record
 
     def _get_payment_order_summary(self, start_date, end_date):
         move_record = self.env['account.move'].search([

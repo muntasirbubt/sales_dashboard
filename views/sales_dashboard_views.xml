@@ -11,5 +11,5 @@
         name="Sales Dashboard"
         action="action_sales_dashboard"
         parent="sale.sale_menu_root"
-        sequence="10"/>
+        sequence="-1"/>
 </odoo>

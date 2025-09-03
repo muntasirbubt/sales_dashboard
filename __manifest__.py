@@ -12,8 +12,10 @@
             'sales_dashboard/static/src/css/sales_dashboard.css',
             'sales_dashboard/static/src/js/dashboard.js',
             'sales_dashboard/static/src/xml/dashboard.xml',
+            '/web/static/lib/Chart/Chart.js',
         ],
     },
+    'images': ['static/description/icon.png'],
     'installable': True,
     'application': True,
 }
