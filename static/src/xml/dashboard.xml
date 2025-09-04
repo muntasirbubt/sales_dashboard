@@ -87,7 +87,7 @@
                     <!-- Status Overview List -->
                     <article class="o_dashboard_card">
                         <header class="o_dashboard_card_header">
-                            <h5>Status Overview</h5>
+                            <h5>Sales States Overview</h5>
                         </header>
                         <div class="o_dashboard_card_body">
                             <ul class="o_dashboard_list">
@@ -209,6 +209,30 @@
                             <div class="o_dashboard_card_body">
                                 <canvas id="day_wise_sales_chart"></canvas>
                             </div>
+                        </article>
+                    </div>
+
+
+                    <!-- Row 3 -->
+                    <div class="o_charts_row pb-5">
+                        <!-- Top Customer Bar Chart -->
+                        <article class="o_dashboard_card">
+                            <header class="o_dashboard_card_header">
+                                <h5>Top Customers (Amount Wise)</h5>
+                            </header>
+                            <div class="o_dashboard_card_body">
+                                <canvas id="top_customers_chart"></canvas>
+                            </div>
+                        </article>
+
+                        <!-- Add this to your template where you want the chart to appear -->
+                        <article class="o_dashboard_card">
+                            <header class="o_dashboard_card_header">
+                                <h5>Day ,,, Sales Amount</h5>
+                            </header>
+<!--                            <div class="o_dashboard_card_body">-->
+<!--                                <canvas id="day_wise_sales_chart"></canvas>-->
+<!--                            </div>-->
                         </article>
                     </div>
                 </div>

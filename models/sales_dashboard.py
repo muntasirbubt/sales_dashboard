@@ -12,7 +12,38 @@ class SalesDashboard(models.TransientModel):
             'status_overview': self._get_status_overview(start_date, end_date),
             'payment_order_summary': self._get_payment_order_summary(start_date, end_date),
             'payment_summary': self._get_payment_summary(start_date, end_date),
-            'day_wise_sales': self._get_day_wise_sales_amount(start_date, end_date),        }
+            'day_wise_sales': self._get_day_wise_sales_amount(start_date, end_date),
+            'top_customers': self._get_top_customers(start_date, end_date),
+        }
+
+    def _get_top_customers(self, start_date, end_date):
+        query = """
+            SELECT 
+                so.partner_id,
+                rp.name as customer_name,
+                SUM(so.amount_total) as total_amount
+            FROM sale_order so
+            JOIN res_partner rp ON so.partner_id = rp.id
+            WHERE so.date_order >= %s
+                AND so.date_order <= %s
+                AND so.state IN ('sale', 'done')
+            GROUP BY so.partner_id, rp.name
+            ORDER BY total_amount DESC
+            LIMIT 5
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        formatted_results = []
+        for result in results:
+            formatted_results.append({
+                'partner_id': (result['partner_id'], result['customer_name']),
+                'amount_total': result['total_amount']
+            })
+
+        return formatted_results
+
 
     def _get_day_wise_sales_amount(self, start_date, end_date):
         """
@@ -33,17 +64,37 @@ class SalesDashboard(models.TransientModel):
         self.env.cr.execute(query, (start_date, end_date))
         results = self.env.cr.dictfetchall()
         return results
+
     def _get_best_selling_products(self, start_date, end_date):
-        record =  self.env['sale.order.line'].read_group(
-            [('order_id.date_order', '>=', start_date),
-             ('order_id.date_order', '<=', end_date),
-             ('order_id.state', 'in', ['sale', 'done'])],
-            ['product_id', 'qty_delivered'],
-            ['product_id'],
-            orderby='qty_delivered desc',
-            limit=5
-        )
-        return record
+        query = """
+            SELECT 
+                pp.id as product_id,
+                pt.name as product_name,
+                COALESCE(SUM(sol.qty_delivered), 0) as total_qty_delivered
+            FROM sale_order_line sol
+            JOIN sale_order so ON sol.order_id = so.id
+            JOIN product_product pp ON sol.product_id = pp.id
+            JOIN product_template pt ON pp.product_tmpl_id = pt.id
+            WHERE so.date_order >= %s
+                AND so.date_order <= %s
+                AND so.state IN ('sale', 'done')
+            GROUP BY pp.id, pt.name
+            ORDER BY total_qty_delivered DESC
+            LIMIT 5
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        # Format to match the original read_group structure
+        formatted_results = []
+        for result in results:
+            formatted_results.append({
+                'product_id': (result['product_id'], result['product_name'].get('en_US')),
+                'qty_delivered': result['total_qty_delivered']
+            })
+
+        return formatted_results
 
     def _get_best_salespersons(self, start_date, end_date):
         record =  self.env['sale.order'].read_group(
@@ -56,6 +107,36 @@ class SalesDashboard(models.TransientModel):
             limit=5
         )
         return record
+
+    # def _get_best_salespersons(self, start_date, end_date):
+    #     query = """
+    #         SELECT
+    #             so.user_id,
+    #             rp.name->> as user_name,
+    #             SUM(so.amount_total) as total_amount
+    #         FROM sale_order as so
+    #         LEFT JOIN res_users as ru ON ru.id = so.user_id
+    #         LEFT JOIN res_partner as rp ON rp.id = ru.partner_id
+    #         WHERE
+    #             so.date_order >= %s
+    #             AND so.date_order <= %s
+    #             AND so.state IN ('sale', 'done')
+    #         GROUP BY so.user_id, rp.name
+    #         ORDER BY total_amount DESC
+    #         LIMIT 5
+    #     """
+    #     self.env.cr.execute(query, (start_date, end_date))
+    #     results = self.env.cr.dictfetchall()
+    #
+    #     formatted_results = []
+    #     for result in results:
+    #         formatted_results.append({
+    #             'user_id': (result['user_id'], result['user_name']),
+    #             'amount_total': result['total_amount']
+    #         })
+    #
+    #     return formatted_results
+
 
     def _get_best_salespersons_confirmed_orders(self, start_date, end_date):
         record = self.env['sale.order'].read_group(

@@ -24,6 +24,7 @@ class SalesDashboard extends Component {
                 payment_order_summary: [],
                 payment_summary: [],
                 day_wise_sales: [],
+                top_customers: [],
             },
         });
 
@@ -42,7 +43,8 @@ class SalesDashboard extends Component {
             topSalespersonsBar: null,
             statusOverviewPie: null,
             paymentStatusDonut: null,
-            dayWiseSales: null
+            dayWiseSales: null,
+            topCustomersChart: null,
         };
 
         onWillStart(() => this.loadData());
@@ -94,6 +96,7 @@ class SalesDashboard extends Component {
             this.renderStatusOverviewPieChart();
             this.renderPaymentStatusDonutChart();
             this.renderDayWiseSalesChart();
+            this.renderTopCustomersChart();
 
         });
     }
@@ -107,6 +110,76 @@ class SalesDashboard extends Component {
         Object.values(this.charts).forEach(chart => {
             if (chart) chart.destroy();
         });
+    }
+
+    renderTopCustomersChart() {
+    const data = this.state.data.top_customers || [];
+    if (data.length === 0) return;
+
+    const ctx = document.getElementById('top_customers_chart');
+    if (!ctx) return;
+
+    if (this.charts.topCustomersChart) {
+        this.charts.topCustomersChart.destroy();
+    }
+
+    const labels = data.map(item => item.partner_id[1]);
+    const values = data.map(item => item.amount_total);
+
+    this.charts.topCustomersChart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Sales Amount',
+                data: values,
+                backgroundColor: [
+                    "#FF6384",
+                    "#36A2EB",
+                    "#FFCE56",
+                    "#4BC0C0",
+                    "#9966FF"
+                ],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `$${context.raw.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Sales Amount ($)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Customers'
+                    }
+                }
+            }
+        }
+    });
     }
 
 
