@@ -144,20 +144,6 @@ class SalesDashboard(models.TransientModel):
 
         return formatted_results
 
-
-    # def _get_best_salespersons_confirmed_orders(self, start_date, end_date):
-    #     record = self.env['sale.order'].read_group(
-    #         [('date_order', '>=', start_date),
-    #          ('date_order', '<=', end_date),
-    #          ('state', 'in', ['sale'])],
-    #         ['user_id'],
-    #         ['user_id'],
-    #         orderby='__count desc',  # Order by number of orders (confirmed)
-    #         limit=5
-    #     )
-    #     return record
-
-
     def _get_best_salespersons_confirmed_orders(self, start_date, end_date):
         query = """
             SELECT
