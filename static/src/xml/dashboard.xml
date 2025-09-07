@@ -126,42 +126,50 @@
                     <!--                    </article>-->
                 </div>
 
-                <!-- Products Section -->
-                <div class="o_products_section">
-                    <!-- Best Selling Products -->
-                    <article class="o_dashboard_card o_best_products">
-                        <header class="o_dashboard_card_header">
-                            <h5>Best Selling Products (Top Five)</h5>
-                        </header>
-                        <div class="o_dashboard_card_body">
-                            <div class="o_products_content">
-                                <div class="o_products_list">
-                                    <ul class="o_dashboard_list">
-                                        <t t-foreach="state.data.best_selling_products" t-as="product"
-                                           t-key="product.product_id[0]">
-                                            <li class="o_dashboard_item">
-                                                <span class="o_dashboard_item_name" t-esc="product.product_id[1]"/>
-                                                <span class="o_dashboard_value" t-esc="product.qty_delivered"/>
-                                            </li>
-                                        </t>
-                                    </ul>
-                                </div>
-                                <div class="o_products_chart">
-                                    <canvas id="best_products_graph"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
+
 
                 <!-- Charts Section -->
                 <div class="o_charts_section">
                     <!-- Row 1 -->
                     <div class="o_charts_row">
+                        <article class="o_dashboard_card o_best_products">
+                            <header class="o_dashboard_card_header">
+                                <h5>Best Selling Products (Top Five)</h5>
+                            </header>
+                            <div class="o_dashboard_card_body">
+                                <div class="o_products_content">
+                                    <div class="o_products_list">
+                                        <ul class="o_dashboard_list">
+                                            <t t-foreach="state.data.best_selling_products" t-as="product"
+                                               t-key="product.product_id[0]">
+                                                <li class="o_dashboard_item">
+                                                    <span class="o_dashboard_item_name" t-esc="product.product_id[1]"/>
+                                                    <span class="o_dashboard_value" t-esc="product.qty_delivered"/>
+                                                </li>
+                                            </t>
+                                        </ul>
+                                    </div>
+                                    <div class="o_products_chart">
+                                        <canvas id="best_products_graph"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        <!-- Add this to your template where you want the chart to appear -->
+                        <article class="o_dashboard_card">
+                            <header class="o_dashboard_card_header">
+                                <h5>Day Wise Sales Amount</h5>
+                            </header>
+                            <div class="o_dashboard_card_body">
+                                <canvas id="day_wise_sales_chart"></canvas>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="o_charts_row">
                         <!-- Best Salespersons Histogram -->
                         <article class="o_dashboard_card">
                             <header class="o_dashboard_card_header">
-                                <h5>Best Salespersons (Histogram)</h5>
+                                <h5>Best Salespersons (By Sales)</h5>
                             </header>
                             <div class="o_dashboard_card_body">
                                 <canvas id="best_salespersons_histogram"></canvas>
@@ -201,21 +209,6 @@
                             </div>
                         </article>
 
-                        <!-- Add this to your template where you want the chart to appear -->
-                        <article class="o_dashboard_card">
-                            <header class="o_dashboard_card_header">
-                                <h5>Day Wise Sales Amount</h5>
-                            </header>
-                            <div class="o_dashboard_card_body">
-                                <canvas id="day_wise_sales_chart"></canvas>
-                            </div>
-                        </article>
-                    </div>
-
-
-                    <!-- Row 3 -->
-                    <div class="o_charts_row pb-5">
-                        <!-- Top Customer Bar Chart -->
                         <article class="o_dashboard_card">
                             <header class="o_dashboard_card_header">
                                 <h5>Top Customers (Amount Wise)</h5>
@@ -225,20 +218,39 @@
                             </div>
                         </article>
 
-                        <!-- Add this to your template where you want the chart to appear -->
-                        <article class="o_dashboard_card">
-                            <header class="o_dashboard_card_header">
-                                <h5>Day ,,, Sales Amount</h5>
-                            </header>
-<!--                            <div class="o_dashboard_card_body">-->
-<!--                                <canvas id="day_wise_sales_chart"></canvas>-->
-<!--                            </div>-->
-                        </article>
                     </div>
                 </div>
 
+<!--                 &lt;!&ndash; Products Section &ndash;&gt;-->
+<!--                <div class="o_products_section">-->
+<!--                    &lt;!&ndash; Best Selling Products &ndash;&gt;-->
+<!--                    <article class="o_dashboard_card o_best_products">-->
+<!--                        <header class="o_dashboard_card_header">-->
+<!--                            <h5>Best Selling Products (Top Five)</h5>-->
+<!--                        </header>-->
+<!--                        <div class="o_dashboard_card_body">-->
+<!--                            <div class="o_products_content">-->
+<!--                                <div class="o_products_list">-->
+<!--                                    <ul class="o_dashboard_list">-->
+<!--                                        <t t-foreach="state.data.best_selling_products" t-as="product"-->
+<!--                                           t-key="product.product_id[0]">-->
+<!--                                            <li class="o_dashboard_item">-->
+<!--                                                <span class="o_dashboard_item_name" t-esc="product.product_id[1]"/>-->
+<!--                                                <span class="o_dashboard_value" t-esc="product.qty_delivered"/>-->
+<!--                                            </li>-->
+<!--                                        </t>-->
+<!--                                    </ul>-->
+<!--                                </div>-->
+<!--                                <div class="o_products_chart">-->
+<!--                                    <canvas id="best_products_graph"></canvas>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </article>-->
+<!--                </div>-->
 
-            </div><!-- End of scrollable content -->
+            </div>
+            <!-- End of scrollable content -->
         </div>
     </t>
 </templates>

@@ -96,68 +96,139 @@ class SalesDashboard(models.TransientModel):
 
         return formatted_results
 
-    def _get_best_salespersons(self, start_date, end_date):
-        record =  self.env['sale.order'].read_group(
-            [('date_order', '>=', start_date),
-             ('date_order', '<=', end_date),
-             ('state', 'in', ['sale', 'done'])],
-            ['user_id', 'amount_total'],
-            ['user_id'],
-            orderby='amount_total desc',
-            limit=5
-        )
-        return record
-
     # def _get_best_salespersons(self, start_date, end_date):
-    #     query = """
-    #         SELECT
-    #             so.user_id,
-    #             rp.name->> as user_name,
-    #             SUM(so.amount_total) as total_amount
-    #         FROM sale_order as so
-    #         LEFT JOIN res_users as ru ON ru.id = so.user_id
-    #         LEFT JOIN res_partner as rp ON rp.id = ru.partner_id
-    #         WHERE
-    #             so.date_order >= %s
-    #             AND so.date_order <= %s
-    #             AND so.state IN ('sale', 'done')
-    #         GROUP BY so.user_id, rp.name
-    #         ORDER BY total_amount DESC
-    #         LIMIT 5
-    #     """
-    #     self.env.cr.execute(query, (start_date, end_date))
-    #     results = self.env.cr.dictfetchall()
-    #
-    #     formatted_results = []
-    #     for result in results:
-    #         formatted_results.append({
-    #             'user_id': (result['user_id'], result['user_name']),
-    #             'amount_total': result['total_amount']
-    #         })
-    #
-    #     return formatted_results
+    #     record =  self.env['sale.order'].read_group(
+    #         [('date_order', '>=', start_date),
+    #          ('date_order', '<=', end_date),
+    #          ('state', 'in', ['sale', 'done'])],
+    #         ['user_id', 'amount_total'],
+    #         ['user_id'],
+    #         orderby='amount_total desc',
+    #         limit=5
+    #     )
+    #     return record
+
+    def _get_best_salespersons(self, start_date, end_date):
+        query = """
+            SELECT
+                so.user_id as user_id,
+                rp.name as user_name,
+                SUM(so.amount_total) as amount_total
+            FROM
+                sale_order so
+            LEFT JOIN
+                res_users ru ON so.user_id = ru.id
+            LEFT JOIN
+                res_partner rp ON ru.partner_id = rp.id
+            WHERE
+                so.date_order >= %s
+                AND so.date_order <= %s
+                AND so.state IN ('sale', 'done')
+            GROUP BY
+                so.user_id, rp.name
+            ORDER BY
+                amount_total DESC
+            LIMIT 5
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        # Format the results to match the original read_group structure
+        formatted_results = []
+        for record in results:
+            formatted_results.append({
+                'user_id': (record['user_id'], record['user_name']),
+                'amount_total': record['amount_total']
+            })
+
+        return formatted_results
+
+
+    # def _get_best_salespersons_confirmed_orders(self, start_date, end_date):
+    #     record = self.env['sale.order'].read_group(
+    #         [('date_order', '>=', start_date),
+    #          ('date_order', '<=', end_date),
+    #          ('state', 'in', ['sale'])],
+    #         ['user_id'],
+    #         ['user_id'],
+    #         orderby='__count desc',  # Order by number of orders (confirmed)
+    #         limit=5
+    #     )
+    #     return record
 
 
     def _get_best_salespersons_confirmed_orders(self, start_date, end_date):
-        record = self.env['sale.order'].read_group(
-            [('date_order', '>=', start_date),
-             ('date_order', '<=', end_date),
-             ('state', 'in', ['sale'])],
-            ['user_id'],
-            ['user_id'],
-            orderby='__count desc',  # Order by number of orders (confirmed)
-            limit=5
-        )
-        return record
+        query = """
+            SELECT
+                so.user_id as id,
+                rp.name as name,
+                COUNT(so.id) as order_count
+            FROM
+                sale_order so
+            LEFT JOIN
+                res_users ru ON so.user_id = ru.id
+            LEFT JOIN
+                res_partner rp ON ru.partner_id = rp.id
+            WHERE
+                so.date_order >= %s
+                AND so.date_order <= %s
+                AND so.state = 'sale'
+            GROUP BY
+                so.user_id, rp.name
+            ORDER BY
+                order_count DESC
+            LIMIT 5
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        # Format the results to match the original read_group structure
+        formatted_results = []
+        for record in results:
+            formatted_results.append({
+                'user_id': (record['id'], record['name']),
+                'user_id_count': record['order_count']
+            })
+
+        return formatted_results
+
+    # def _get_status_overview(self, start_date, end_date):
+    #     status_record =  self.env['sale.order'].read_group(
+    #         [('date_order', '>=', start_date),
+    #          ('date_order', '<=', end_date)],
+    #         ['state'],
+    #         ['state']
+    #     )
+    #     return status_record
 
     def _get_status_overview(self, start_date, end_date):
-        status_record =  self.env['sale.order'].read_group(
-            [('date_order', '>=', start_date),
-             ('date_order', '<=', end_date)],
-            ['state'],
-            ['state']
-        )
-        return status_record
+        query = """
+            SELECT 
+                state,
+                COUNT(id) as state_count
+            FROM 
+                sale_order
+            WHERE 
+                date_order >= %s
+                AND date_order <= %s
+            GROUP BY 
+                state
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        # Format the results to match the original read_group structure
+        formatted_results = []
+        for record in results:
+            formatted_results.append({
+                'state': record['state'],
+                'state_count': record['state_count']
+            })
+
+        return formatted_results
 
     def _get_payment_order_summary(self, start_date, end_date):
         move_record = self.env['account.move'].search([
@@ -174,12 +245,40 @@ class SalesDashboard(models.TransientModel):
         )
         return payments
 
+    # def _get_payment_summary(self, start_date, end_date):
+    #     record = self.env['account.move'].read_group(
+    #         [('invoice_date', '>=', start_date),
+    #          ('invoice_date', '<=', end_date),
+    #          ('move_type', '=', 'out_invoice')],
+    #         ['payment_state'],
+    #         ['payment_state']
+    #     )
+    #     return record
+
     def _get_payment_summary(self, start_date, end_date):
-        record = self.env['account.move'].read_group(
-            [('invoice_date', '>=', start_date),
-             ('invoice_date', '<=', end_date),
-             ('move_type', '=', 'out_invoice')],
-            ['payment_state'],
-            ['payment_state']
-        )
-        return record
+        query = """
+            SELECT 
+                payment_state,
+                COUNT(id) as payment_state_count
+            FROM 
+                account_move
+            WHERE 
+                invoice_date >= %s
+                AND invoice_date <= %s
+                AND move_type = 'out_invoice'
+            GROUP BY 
+                payment_state
+        """
+
+        self.env.cr.execute(query, (start_date, end_date))
+        results = self.env.cr.dictfetchall()
+
+        # Format the results to match the original read_group structure
+        formatted_results = []
+        for record in results:
+            formatted_results.append({
+                'payment_state': record['payment_state'],
+                'payment_state_count': record['payment_state_count']
+            })
+
+        return formatted_results
