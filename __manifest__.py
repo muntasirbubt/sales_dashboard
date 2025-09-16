@@ -3,6 +3,12 @@
     'version': '17.0.1.0.0',
     'category': 'Sales',
     'summary': 'Dashboard for sales managers',
+    'price': 24.99,
+    'currency':'USD',
+    'author': 'MD Muntasir Kamal',
+    'company': '',
+    'maintainer': 'MD Muntasir Kamal',
+    'website': "https://github.com/muntasirbubt",
     'images': ['static/description/icon.png'],
     'depends': ['sale', 'account'],
     'data': [
