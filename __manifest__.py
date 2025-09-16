@@ -3,6 +3,7 @@
     'version': '17.0.1.0.0',
     'category': 'Sales',
     'summary': 'Dashboard for sales managers',
+    'images': ['static/description/icon.png'],
     'depends': ['sale', 'account'],
     'data': [
         'views/sales_dashboard_views.xml',
@@ -15,7 +16,7 @@
             '/web/static/lib/Chart/Chart.js',
         ],
     },
-    'images': ['static/description/icon.png'],
+    'images': ['static/description/banner.png'],
     'installable': True,
     'application': True,
 }
